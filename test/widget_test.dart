@@ -13,11 +13,9 @@ import 'package:chats/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    var channel;
     var client;
-    await tester.pumpWidget(MyApp(
+    await tester.pumpWidget(MainApp(
       client: client,
-      channel: channel,
     ));
 
     // Verify that our counter starts at 0.
