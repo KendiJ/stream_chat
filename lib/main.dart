@@ -64,17 +64,62 @@ class _ChannelListPageState extends State<ChannelListPage> {
     return Scaffold(
       body: StreamChannelListView(
         controller: _listController,
+        itemBuilder: _channelTileBuilder,
         onChannelTap: (channel) {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) {
-              return StreamChannel(
-                channel: channel,
-                child: const ChannelPage(),
-              );
-            }),
+            MaterialPageRoute(
+              builder: (context) {
+                return StreamChannel(
+                  channel: channel,
+                  child: const ChannelPage(),
+                );
+              },
+            ),
           );
         },
       ),
+    );
+  }
+
+  Widget _channelTileBuilder(BuildContext context, List<Channel> channels,
+      int index, StreamChannelListTile defaultChannelTile) {
+    final channel = channels[index];
+    final lastMessage = channel.state?.messages.reversed.firstWhere(
+      (message) => !message.isDeleted,
+    );
+    final subTitle = lastMessage == null ? 'nothing yet' : lastMessage.text!;
+    final opacity = (channel.state?.unreadCount ?? 0) > 0 ? 1.0 : 0.5;
+
+    final theme = StreamChatTheme.of(context);
+
+    return ListTile(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StreamChannel(
+              channel: channel,
+              child: const ChannelPage(),
+            ),
+          ),
+        );
+      },
+      leading: StreamChannelAvatar(
+        channel: channel,
+      ),
+      title: StreamChannelName(
+        channel: channel,
+        textStyle: theme.channelPreviewTheme.titleStyle?.copyWith(
+          color: theme.colorTheme.textHighEmphasis.withOpacity(opacity),
+        ),
+      ),
+      subtitle: Text(subTitle),
+      trailing: channel.state!.unreadCount > 0
+          ? CircleAvatar(
+              radius: 10,
+              child: Text(channel.state!.unreadCount.toString()),
+            )
+          : const SizedBox(),
     );
   }
 }
